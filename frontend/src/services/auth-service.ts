@@ -1,7 +1,7 @@
 import { supabase } from "../@libs/supabase";
-import { ICredential } from "../@libs/types";
+import { ICredential, IUser } from "../@libs/types";
 
-const sigIn = async (credential: ICredential) => {
+const signIn = async (credential: ICredential) => {
     const {data, error} = await supabase.auth.signInWithPassword({
         email: credential.username,
         password: credential.password
@@ -12,6 +12,31 @@ const sigIn = async (credential: ICredential) => {
         return data;
     }
 
+const signUp = async (user: IUser) => {
+
+    await supabase.auth.admin.createUser({
+        user_metadata: { name: user.name }, 
+        email: user.email,
+        password: user.password,
+        email_confirm: true
+    });
+
+    if (error) throw error;
+
+    return data.user;
+
+}
+
+const getUser = async () => {
+    const {data, error} = await supabase.auth.getSession();
+
+    if (error) throw error;
+
+    return data.session?.user;
+}
+
 export const AuthService = {
-    sigIn
+    signIn,
+    signUp,
+    getUser
 }
